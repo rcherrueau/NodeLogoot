@@ -1,22 +1,5 @@
-Logoot Implementation with web technologies
-https://github.com/xZwop/R5A/wiki
+Logoot Implementation with Node.js and WebSocket
 
-== LOGOOT JS ==
-
-cd /home/user/
-git clone git://github.com/xZwop/R5A.git
-cd R5A/r5aJS
-mvn jetty:run-exploded # This will launch new server on localhost:8080
-
-open localhost:8080/r5aJS in your browser and enjoy !
-
-
-== LOGOOT GWT ==
-
-cd /home/user/
-git clone git://github.com/xZwop/R5A.git
-cd R5A/r5aGWT/
-mvn jetty:run-exploded # This will launch new server on localhost:8080
-
-open localhost:8080/r5a in your browser and enjoy !
+Continues of logoot js implementation xZwop/R5A/ (from github) with
+Node.js (http://nodejs.org/) and WebSocket (http://dev.w3.org/html5/websockets/)
 
