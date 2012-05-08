@@ -54,9 +54,8 @@
         <div class="form-inline">
           <div class="input-prepend input-append">
             <span class="add-on">ws://</span><input type="text" class="span2"
-            id="registerAddress" placeholder="127.0.0.1"><span
-            class="add-on">:</span><input type="text" class="span1"
-            id="registerPort" placeholder="1337">
+            id="registerAddress"><span  class="add-on">:</span><input
+            type="text" class="span1" id="registerPort">
           </div>
           <input type="text" id="registerName" class="span2" placeholder="Name">
         </div>
@@ -88,25 +87,29 @@
     </script>
     <script type="application/javascript" src="bootstrap.min.js"></script>
     <script type="application/javascript">var BASE = 100;</script>
-    <!--
     <script type="application/javascript" src="logoot.js"></script>
     <script type="application/javascript" src="logootEditor.js"></script>
-    -->
     <script type="application/javascript">
       // The logoot Editor object.
       var logootEditor = false;
 
-      // Notify new user.
-      function newUserNotification(id, userName, color) {
+      // Logoot NewUserHandler.
+      function newUserHandler(id, userName, color) {
         $('#newUserNotification').append('<li id="userNotif_' + id +'">'
             + '<span class="label" style="background-color: ' + color + '">'
             + userName + '</span><span class="divider"></span>'
             + '</li>');
       }
 
-      // Notify drop user.
-      function dropUserNotification(id) {
+      // Logoot DropUserHandler.
+      function dropUserHandler(id) {
         $('#userNotif_' + id).remove();
+      }
+
+      // Logoot ConnectHandler.
+      function connectHandler(id, userName, color) {
+        newUserHandler(id, userName, color);
+        $('#registerModal').modal('hide');
       }
 
       // Start logoot editor.
@@ -123,23 +126,21 @@
 
           var serverLocation = 'ws://' + serverAddress + ':' + serverPort;
           logootEditor = new LogootEditor('paper', serverLocation, userName,
-            // On Register.
-            function(id, color) {
-              newUserNotification(id, userName, color);
-              $('#registerModal').modal('hide');
-          });
+              connectHandler, null, null, newUserHandler, dropUserHandler);
       }
 
       $(document).ready(function() {
-        $('#registerModal').modal({
-            backdrop  : 'static',
-            keyboard  : false,
-            show      : true 
-        });
-        $('#registerSubmit').click(register);
-        $('#registerName').keyup(function(e) {
-          if (e.keyCode == 13) { register(); }
-        });
+          $('#registerAddress').attr('placeholder', document.domain);
+          $('#registerPort').attr('placeholder', window.location.port);
+          $('#registerModal').modal({
+              backdrop  : 'static',
+              keyboard  : false,
+              show      : true 
+          });
+          $('#registerSubmit').click(register);
+          $('#registerName').keyup(function(e) {
+            if (e.keyCode == 13) { register(); }
+          });
       });
     </script>
   </body>

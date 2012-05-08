@@ -1,4 +1,4 @@
-function User(is, name, color) {
+function User(id, name, color) {
   this.id = id;
   this.name = name;
   this.color = color;
@@ -7,56 +7,61 @@ function User(is, name, color) {
 function LogootEditor(contentEditable, serverLocation, userName,
     connectHandler, closeHandler, errorHandler, newUserHandler, 
     dropUserHandler) {
+  var me = this;
   this.user = false;
-  this.onconnect = (connectHandler) ? connectHandler : false;
-  this.onclose = (closeHandler) ? closeHandler : false;
-  this.onerror = (errorHandler) ? errorHandler : false;
-  this.onnewuser = (newUserHandler) ? newUserHandler : false;
-  this.ondropuser = (dropUserHandler) ? dropUserHandler : false;
+  this.onconnect = connectHandler || false;
+  this.onclose = closeHandler || false;
+  this.onerror = errorHandler || false;
+  this.onnewuser = newUserHandler || false;
+  this.ondropuser = dropUserHandler || false;
 
-  this.websocket = new WebSocket(serverLocation);
-  this.websocket.onopen = function(evt) {
+  var websocket = new WebSocket(serverLocation);
+  websocket.onopen = function(evt) {
     console.log("CONNECTED TO " + serverLocation);
+    console.log("USER: " + userName);
+    websocket.send(JSON.stringify({ type:'register', name:  userName }));
   };
-  this.websocket.onclose = function(evt) {
+  websocket.onclose = function(evt) {
     console.log("DISCONNECTED FROM " + serverLocation);
     if (this.onclose !== false && this.user !== false) {
       this.onclose(this.user.id);
     }
   };
-  this.websocket.onerror = function(evt) {
+  websocket.onerror = function(evt) {
     console.log("ERROR FROM " + serverLocation + '['+ evt.data +']');
     if (this.onerror !== false) {
       this.onerror(evt.data);
     }
   };
-  this.websocket.onmessage = function(evt) {
+  websocket.onmessage = function(evt) {
     console.log(evt.data);
     var obj = JSON.parse(evt.data);
 
     switch (obj.type) {
     // Current user well connected.
     case 'connected':
-      this.user = new User(obj.id, userNamen obj.color);
-      this.makeLogootEditor(contentEditable);
-      if (this.onconnect !== false) {
-        this.onconnect(obj.id, obj.color);
+      me.user = new User(obj.id, obj.name, obj.color);
+      me.makeLogootEditor(contentEditable);
+      if (me.onconnect !== false) {
+        me.onconnect(obj.id, obj.name, obj.color);
       }
       break;
     // A new user connected.
     case 'userConnected':
-      if (this.onnewuser !== false) {
-        this.onnewuser(obj.id, obj.name, obj.color);
+      if (me.onnewuser !== false) {
+        me.onnewuser(obj.id, obj.name, obj.color);
       }
       break;
     // A user is disconnected.
     case 'userDisconnected':
-      if (this.ondropuser !== false) {
-        this.ondropuser(obj.id);
+      if (me.ondropuser !== false) {
+        me.ondropuser(obj.id);
       }
       break;
     // Get new patch.
     case 'patch':
+      break;
+    default:
       break;
     }
   };
