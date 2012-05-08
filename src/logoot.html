@@ -123,20 +123,28 @@
     </a>
     <script type="application/javascript">
     function  adaptePaperToScreen() {
+      var MIN_HEIGHT = 200;
       var paper = document.getElementById('paper');
       var newHeight = window.innerHeight - paper.offsetTop - 60;
 
-      if (newHeight < 100) {
-        newHeight = 100;
-      }
-      paper.style.height = newHeight + 'px';
+      paper.style.height = Math.max(MIN_HEIGHT, newHeight) + 'px';
     }
     window.addEventListener("load", adaptePaperToScreen, false);
     window.addEventListener("resize", adaptePaperToScreen, false);
     </script>
+    <script type="application/javascript"
+      src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js">
+    </script>
+    <script type="application/javascript" src="bootstrap.min.js"></script>
     <script type="application/javascript">var BASE = 100;</script>
     <script type="application/javascript" src="logoot.js"></script>
-    <script type="application/javascript" src="logoot_editor.js"></script>
+    <script type="application/javascript" src="logootEditor.js"></script>
+    <script type="application/javascript">
+      /*
+      var logootEditor = new LogootEditor('paper', 'user', function(id, color) {
+      });
+      */
+    </script>
   </body>
 </html>
 

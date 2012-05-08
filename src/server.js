@@ -26,13 +26,17 @@ function onHttpRequest(req, res) {
     res.writeHeader(200, {'Content-Type': 'text/css'});  
     res.end(fs.readFileSync('./bootstrap.min.css','utf8'));  
     break;
+    case '/bootstrap.min.js':
+    res.writeHeader(200, {'Content-Type': 'application/javascript'});  
+    res.end(fs.readFileSync('./bootstrap.min.js','utf8'));  
+    break;
   case '/logoot.js':
     res.writeHeader(200, {'Content-Type': 'application/javascript'});  
     res.end(fs.readFileSync('./logoot.js','utf8'));  
     break;
-  case '/logoot_editor.js':
+  case '/logootEditor.js':
     res.writeHeader(200, {'Content-Type': 'application/javascript'});  
-    res.end(fs.readFileSync('./logoot_editor.js','utf8'));  
+    res.end(fs.readFileSync('./logootEditor.js','utf8'));  
     break;
   case '/logoot.html':
   case '/':
