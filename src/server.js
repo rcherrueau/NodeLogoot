@@ -59,7 +59,7 @@ function onWsRequest(req) {
   var index = clients.push(connection) - 1;
 
   // Send id and context to new user.
-  var id = JSON.stringify({ type:'id', data:genId() });
+  var id = JSON.stringify({ type:'connected', data:genId() });
   connection.sendUTF(id);
   for (var i in context) {
     var patch = JSON.stringify({ type:'patch', data:context[i] });

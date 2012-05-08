@@ -1,3 +1,67 @@
+function User(is, name, color) {
+  this.id = id;
+  this.name = name;
+  this.color = color;
+}
+
+function LogootEditor(contentEditable, serverLocation, userName,
+    connectHandler, closeHandler, errorHandler, newUserHandler, 
+    dropUserHandler) {
+  this.user = false;
+  this.onconnect = (connectHandler) ? connectHandler : false;
+  this.onclose = (closeHandler) ? closeHandler : false;
+  this.onerror = (errorHandler) ? errorHandler : false;
+  this.onnewuser = (newUserHandler) ? newUserHandler : false;
+  this.ondropuser = (dropUserHandler) ? dropUserHandler : false;
+
+  this.websocket = new WebSocket(serverLocation);
+  this.websocket.onopen = function(evt) {
+    console.log("CONNECTED TO " + serverLocation);
+  };
+  this.websocket.onclose = function(evt) {
+    console.log("DISCONNECTED FROM " + serverLocation);
+    if (this.onclose !== false && this.user !== false) {
+      this.onclose(this.user.id);
+    }
+  };
+  this.websocket.onerror = function(evt) {
+    console.log("ERROR FROM " + serverLocation + '['+ evt.data +']');
+    if (this.onerror !== false) {
+      this.onerror(evt.data);
+    }
+  };
+  this.websocket.onmessage = function(evt) {
+    console.log(evt.data);
+    var obj = JSON.parse(evt.data);
+
+    switch (obj.type) {
+    // Current user well connected.
+    case 'connected':
+      this.user = new User(obj.id, userNamen obj.color);
+      this.makeLogootEditor(contentEditable);
+      if (this.onconnect !== false) {
+        this.onconnect(obj.id, obj.color);
+      }
+      break;
+    // A new user connected.
+    case 'userConnected':
+      if (this.onnewuser !== false) {
+        this.onnewuser(obj.id, obj.name, obj.color);
+      }
+      break;
+    // A user is disconnected.
+    case 'userDisconnected':
+      if (this.ondropuser !== false) {
+        this.ondropuser(obj.id);
+      }
+      break;
+    // Get new patch.
+    case 'patch':
+      break;
+    }
+  };
+}
+
 //==============================================================================
 // initialisation
 //==============================================================================
@@ -19,33 +83,7 @@ var PUSH_URL = DOMAINE + "/r5aJS/getData";
 var identifier = undefined;
 var logootPusher = undefined;
 
-function register() {
-	var http;
-	if (window.XMLHttpRequest)
-	{ // Mozilla, Safari, IE7 ...
-		http = new XMLHttpRequest();
-	}
-	else if (window.ActiveXObject)
-	{ // Internet Explorer 6
-		http = new ActiveXObject("Microsoft.XMLHTTP");
-	}
-
-	http.open('GET', REGISTER_URL, true);
-	http.onreadystatechange = function() {
-    if (http.readyState == 4) {
-      if (http.status == 200) {
-        identifier = http.responseText;
-        makeLogootEditor(EDITABLE_ID);
-      } else {
-        console.log('Pas glop pas glop');
-      }
-    }
-  }
-
-	http.send(null);	
-}  
-
-function makeLogootEditor(divID) {
+LogootEditor.prototype.makeLogootEditor = function(divID) {
   var edit = document.getElementById(divID);
 
   edit.contentEditable = true;
@@ -76,7 +114,8 @@ function onReceive(event) {
   if(message.repID != identifier) {
     switch(message.type) {
     case TYPE_INSERTION:
-      foreignInsertion(message.repID, message.keyCode, message.lineIdentifier, closestSpan(message.lineIdentifier).id);
+      foreignInsertion(message.repID, message.keyCode, message.lineIdentifier,
+          closestSpan(message.lineIdentifier).id);
       break;
     case TYPE_DELETION:
       foreignDeletion(message.repId, message.lineIdentifier);
