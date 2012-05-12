@@ -10,15 +10,22 @@ var connections = [];
 //! Context is all transmited message from server start.
 var context = [];
 
-//! Array with some colors.
-var colors = ["blue", "blueviolet", "brown", "darkorange", "hotpink", "red", 
-    "forestgreen", "cadetblue", "chartreuse", "chocolate", "coral",
-    "cornflowerblue", "crimson", "cyan"];
-colors.sort(function(a,b) { return Math.random() > 0.5; });
+//! Unique identifier of user.
+function UUID() { }
+UUID.millisOld = 0;
+UUID.counter = 0;
+UUID.gen = function() {
+  var millis = new Date().getTime() - 1262304000000;
 
-var id = 0;
+  if (millis == UUID.millisOld) {
+    ++ UUID.counter;
+  } else {
+    UUID.counter = 0;
+    UUID.millisOld = millis;
+  }
 
-function genId() { return ++id; }
+  return (millis * Math.pow(2, 12)) + UUID.counter;
+}
 
 /*!
  * \brief Specifie user is successfully connected.
@@ -191,7 +198,7 @@ function onWsRequest(req) {
 
       switch (obj.type) {
       case 'register':
-        userId = genId();
+        userId = UUID.gen();
         userColor = colors.shift();
         if (colors.length == 0) {
           // ReloadColors
