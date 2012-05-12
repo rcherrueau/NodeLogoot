@@ -37,22 +37,19 @@ UUID.gen = function() {
   {
     type  : 'connected',
     id    : <USER UNIQUE ID>,
-    name  : <USER NAME>,
-    color : <USER COLOR>
+    name  : <USER NAME>
   }
  \endverbatim
  *
  * \param connection  The websocket user connection (to send message).
  * \param userId      The user id.
  * \param userName    The new user name.
- * \param userColor   The new user color.
  */
-function sendConnectSuccessful(connection, userId, userName, userColor) {
+function sendConnectSuccessful(connection, userId, userName) {
   var msg = JSON.stringify({
     type  : 'connected',
     id    : userId,
-    name  : userName,
-    color : userColor
+    name  : userName
   });
 
   connection.sendUTF(msg);
@@ -68,22 +65,19 @@ function sendConnectSuccessful(connection, userId, userName, userColor) {
  {
     type  : 'userConnected',
     id    : <USER UNIQUE ID>,
-    name  : <USER NAME>,
-    color : <USER COLOR>
+    name  : <USER NAME>
  }
  \endverbatim
  *
  * \param userId      The new user id.
  * \param userName    The new user name.
- * \param userColor   The new user color.
  * \param except      The connection to not send.
  */
-function sendNewUserConnected(userId, userName, userColor, except) {
+function sendNewUserConnected(userId, userName, except) {
   var msg = JSON.stringify({
     type  : 'userConnected',
     id    : userId,
-    name  : userName,
-    color : userColor
+    name  : userName
   });
 
   for (var i in connections) {
@@ -188,7 +182,6 @@ function onWsRequest(req) {
   var index = connections.push(connection) - 1;
 
   var userId = false;
-  var userColor = false;
   var userName = false;
 
   // Each user send a message event, message is broadcasted to all users.
@@ -199,17 +192,9 @@ function onWsRequest(req) {
       switch (obj.type) {
       case 'register':
         userId = UUID.gen();
-        userColor = colors.shift();
-        if (colors.length == 0) {
-          // ReloadColors
-          colors = ["blue", "blueviolet", "brown", "darkorange", "hotpink",
-            "red", "forestgreen", "cadetblue", "chartreuse", "chocolate",
-            "coral", "cornflowerblue", "crimson", "cyan"];
-          colors.sort(function(a,b) { return Math.random() > 0.5; });
-        }
         userName = obj.name;
-        sendConnectSuccessful(connection, userId, userName, userColor);
-        sendNewUserConnected(userId, userName, userColor, connection);
+        sendConnectSuccessful(connection, userId, userName);
+        sendNewUserConnected(userId, userName, connection);
         break;
       case 'patch':
         sendPatch(obj.patch, connection);
