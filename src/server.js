@@ -4,8 +4,8 @@ var http = require('http');
 var url = require('url');
 var fs = require('fs');
 
-//! Currently connected clients.
-var clients = [];
+//! Currently connected connections.
+var connections = [];
 
 //! Context is all transmited message from server start.
 var context = [];
@@ -55,7 +55,7 @@ function sendConnectSuccessful(connection, userId, userName, userColor) {
  * \brief Specifie new user connected to edit document.
  *
  * Send via websocket a notification of new user connected to document. The
- * message is send to all clients. It is formated in json and have the
+ * message is send to all connections. It is formated in json and have the
  * following form:
  \verbatim
  {
@@ -79,9 +79,9 @@ function sendNewUserConnected(userId, userName, userColor, except) {
     color : userColor
   });
 
-  for (var i in clients) {
-    if (clients[i] != except) {
-      clients[i].sendUTF(msg);
+  for (var i in connections) {
+    if (connections[i] != except) {
+      connections[i].sendUTF(msg);
     }
   }
 }
@@ -90,7 +90,7 @@ function sendNewUserConnected(userId, userName, userColor, except) {
  * \brief Specifie user disconnected on edit document.
  *
  * Send via websocket a notification of user disconnecte on edit document. The
- * message is send to all clients. It is formated in json and have the
+ * message is send to all connections. It is formated in json and have the
  * following form:
  \verbatim
  {
@@ -104,13 +104,13 @@ function sendNewUserConnected(userId, userName, userColor, except) {
 function sendUserDisconnected(userId) {
   var msg = JSON.stringify({ type: 'userDisconnected', id: userId });
 
-  for (var i in clients) { clients[i].sendUTF(msg); }
+  for (var i in connections) { connections[i].sendUTF(msg); }
 }
 
 /*!
- * \brief Send new patch to all clients.
+ * \brief Send new patch to all connections.
  *
- * Send via websocket a new patch to all clients. The message is formated in
+ * Send via websocket a new patch to all connections. The message is formated in
  * json with the following form:
  \verbatim
  {
@@ -119,11 +119,18 @@ function sendUserDisconnected(userId) {
  }
  \endverbatim
  *
- * \param patch The patch to send to all user.
+ * \param patch   The patch to send to all user.
+ * \param except  The connection to not send.
  */
-function sendPatch(patch) {
+function sendPatch(patch, except) {
   var msg = JSON.stringify({ type: 'patch', patch: patch });
-  for (var i in clients) { clients[i].sendUTF(msg); }
+
+  for (var i in connections) { 
+    if (connections[i] != except) {
+      console.log("send to: " + connections[i]);
+      connections[i].sendUTF(msg);
+    }
+  }
 }
 
 /*!
@@ -171,7 +178,7 @@ function onHttpRequest(req, res) {
  */
 function onWsRequest(req) {
   var connection = req.accept(null, req.origin);
-  var index = clients.push(connection) - 1;
+  var index = connections.push(connection) - 1;
 
   var userId = false;
   var userColor = false;
@@ -186,12 +193,19 @@ function onWsRequest(req) {
       case 'register':
         userId = genId();
         userColor = colors.shift();
+        if (colors.length == 0) {
+          // ReloadColors
+          colors = ["blue", "blueviolet", "brown", "darkorange", "hotpink",
+            "red", "forestgreen", "cadetblue", "chartreuse", "chocolate",
+            "coral", "cornflowerblue", "crimson", "cyan"];
+          colors.sort(function(a,b) { return Math.random() > 0.5; });
+        }
         userName = obj.name;
         sendConnectSuccessful(connection, userId, userName, userColor);
         sendNewUserConnected(userId, userName, userColor, connection);
         break;
       case 'patch':
-        sendPatch(obj.patch);
+        sendPatch(obj.patch, connection);
         break;
       default: // Do Nothing
       }
@@ -200,7 +214,7 @@ function onWsRequest(req) {
 
   // At user disconection, he is remove from broadcast groupe.
   connection.on('close', function(connection) {
-    clients.splice(index, 1); 
+    connections.splice(index, 1); 
     sendUserDisconnected(userId);
   });
 }

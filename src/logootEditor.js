@@ -4,10 +4,11 @@ function User(id, name, color) {
   this.color = color;
 }
 
-function LogootEditor(contentEditable, serverLocation, userName,
+function LogootEditor(editorId, serverLocation, userName,
     connectHandler, closeHandler, errorHandler, newUserHandler, 
     dropUserHandler) {
   var me = this;
+  this.editor = document.getElementById(editorId);
   this.user = false;
   this.onconnect = connectHandler || false;
   this.onclose = closeHandler || false;
@@ -15,25 +16,25 @@ function LogootEditor(contentEditable, serverLocation, userName,
   this.onnewuser = newUserHandler || false;
   this.ondropuser = dropUserHandler || false;
 
-  var websocket = new WebSocket(serverLocation);
-  websocket.onopen = function(evt) {
+  this.websocket = new WebSocket(serverLocation);
+  this.websocket.onopen = function(evt) {
     console.log("CONNECTED TO " + serverLocation);
     console.log("USER: " + userName);
-    websocket.send(JSON.stringify({ type:'register', name:  userName }));
+    me.websocket.send(JSON.stringify({ type:'register', name:  userName }));
   };
-  websocket.onclose = function(evt) {
+  this.websocket.onclose = function(evt) {
     console.log("DISCONNECTED FROM " + serverLocation);
-    if (this.onclose !== false && this.user !== false) {
-      this.onclose(this.user.id);
+    if (me.onclose !== false && me.user !== false) {
+      me.onclose(me.user.id);
     }
   };
-  websocket.onerror = function(evt) {
+  this.websocket.onerror = function(evt) {
     console.log("ERROR FROM " + serverLocation + '['+ evt.data +']');
-    if (this.onerror !== false) {
-      this.onerror(evt.data);
+    if (me.onerror !== false) {
+      me.onerror(evt.data);
     }
   };
-  websocket.onmessage = function(evt) {
+  this.websocket.onmessage = function(evt) {
     console.log(evt.data);
     var obj = JSON.parse(evt.data);
 
@@ -41,7 +42,7 @@ function LogootEditor(contentEditable, serverLocation, userName,
     // Current user well connected.
     case 'connected':
       me.user = new User(obj.id, obj.name, obj.color);
-      me.makeLogootEditor(contentEditable);
+      me.makeLogootEditor();
       if (me.onconnect !== false) {
         me.onconnect(obj.id, obj.name, obj.color);
       }
@@ -60,6 +61,7 @@ function LogootEditor(contentEditable, serverLocation, userName,
       break;
     // Get new patch.
     case 'patch':
+      me.onpatch(obj.patch);
       break;
     default:
       break;
@@ -84,53 +86,41 @@ var REGISTER_URL = DOMAINE + "/r5aJS/sendData?action=register";
 var SEND_URL = DOMAINE + "/r5aJS/sendData?action=send";
 var PUSH_URL = DOMAINE + "/r5aJS/getData";
 
-// generated in makeLogootEditor()
-var identifier = undefined;
-var logootPusher = undefined;
+LogootEditor.prototype.makeLogootEditor = function() {
+  this.editor.contentEditable = true;
+  this.editor.addEventListener("keypress", (function(instance) {
+    return function(evt) { instance.insertion(evt); }
+  })(this), false);
+  this.editor.addEventListener("paste", (function(instance) {
+    return function (evt) { instance.paste(evt); }
+  })(this), false);
+  this.editor.addEventListener("keydown", (function(instance) {
+    return function (evt) { instance.deletion(evt); }
+  })(this), false);
+  this.editor.innerHTML = "<span class='" + LIMIT_CLASS + "' id='"
+    + BEGIN_LINE_ID + "'></span><span class='" + LIMIT_CLASS + "' id='"
+    + END_LINE_ID + "'></span>";
+}
 
-LogootEditor.prototype.makeLogootEditor = function(divID) {
-  var edit = document.getElementById(divID);
-
-  edit.contentEditable = true;
-  edit.addEventListener("keypress", insertion, false);
-  edit.addEventListener("paste", paste, false);
-  edit.addEventListener("keydown", deletion, false);
-  edit.innerHTML = "<span class='"
-                   + LIMIT_CLASS
-                   + "' id='"
-                   + BEGIN_LINE_ID
-                   + "'></span><span class='"
-                   + LIMIT_CLASS
-                   + "' id='"
-                   + END_LINE_ID
-                   + "'></span>";
-   logootPusher = new EventSource(PUSH_URL);
-   
-   logootPusher.onmessage = onReceive;
+LogootEditor.prototype.onpatch = function(patch) {
+  if (patch.repID != this.user.id) {
+    switch (patch.type) {
+    case TYPE_INSERTION:
+      this.foreignInsertion(patch.repID, patch.keyCode, patch.lineIdentifier,
+          this.closestSpan(patch.lineIdentifier).id);
+      break;
+    case TYPE_DELETION:
+      foreignDeletion(patch.repId, patch.lineIdentifier);
+      break;
+    }
+  }
 }
 
 //==============================================================================
 // events
 //==============================================================================
 
-function onReceive(event) {
-  var message = JSON.parse(event.data);
-
-  if(message.repID != identifier) {
-    switch(message.type) {
-    case TYPE_INSERTION:
-      foreignInsertion(message.repID, message.keyCode, message.lineIdentifier,
-          closestSpan(message.lineIdentifier).id);
-      break;
-    case TYPE_DELETION:
-      foreignDeletion(message.repId, message.lineIdentifier);
-      break;
-    }
-  }
-}
-
-function insertion(event) {
-  var edit = document.getElementById(EDITABLE_ID);
+LogootEditor.prototype.insertion = function(event) {
   var selection = window.getSelection();
   var range = selection.getRangeAt(0);
   var next = selection.anchorNode.parentNode.nextSibling;
@@ -138,45 +128,45 @@ function insertion(event) {
   var data = String.fromCharCode(event.keyCode);
 
   // space
-  if(event.keyCode==32) {
+  if (event.keyCode == 32) {
     data = "&nbsp;";
   }
 
   // be sure that the next node is between the begin and the end span
-  if(selection.baseOffset==0
-     || (selection.baseOffset==1 && selection.anchorNode.id == "logoot")) {
-    next=document.getElementById(BEGIN_LINE_ID).nextSibling;
-  } else if(next == document.getElementById(BEGIN_LINE_ID)) {
+  if (selection.baseOffset == 0
+      || (selection.baseOffset == 1
+      && selection.anchorNode.id == "logoot")) {
+    next = document.getElementById(BEGIN_LINE_ID).nextSibling;
+  } else if (next == document.getElementById(BEGIN_LINE_ID)) {
     next = next.nextSibling;  
-  } else if(next == null) {
+  } else if (next == null) {
     next = document.getElementById(END_LINE_ID);
   }
 
   var previousLineIdentifier = next.previousSibling.id;
   var nextLineIdentifier = next.id;
 
-  // the previous or next span could be a cursor so the lineIdentifiers must be
-  // changed
-  while(document.getElementById(previousLineIdentifier).className != CHARACTER_CLASS
-        && document.getElementById(previousLineIdentifier).className != LIMIT_CLASS) {
-    previousLineIdentifier = document.getElementById(previousLineIdentifier).previousSibling.id;
+  // the previous or next span could be a cursor so the lineIdentifiers must
+  // be changed
+  var previousLineIdTag = document.getElementById(previousLineIdentifier);
+  var nextLineIdTag = document.getElementById(nextLineIdentifier);
+  while (previousLineIdTag.className != CHARACTER_CLASS
+      && previousLineIdTag.className != LIMIT_CLASS) {
+    previousLineIdentifier = previousLineIdTag.previousSibling.id;
   }
-  while(document.getElementById(nextLineIdentifier).className != CHARACTER_CLASS
-        && document.getElementById(nextLineIdentifier).className != LIMIT_CLASS) {
-    nextLineIdentifier = document.getElementById(nextLineIdentifier).nextSibling.id;
+  while (nextLineIdTag.className != CHARACTER_CLASS
+      && nextLineIdTag.className != LIMIT_CLASS) {
+    nextLineIdentifier = nextLineIdTag.nextSibling.id;
   }
 
   // set the new span
   span.innerHTML = data;
   span.className = CHARACTER_CLASS;
   span.id = Logoot.generateLineId(LineId.unserialize(previousLineIdentifier),
-                                  LineId.unserialize(nextLineIdentifier),
-                                  1,
-                                  10,
-                                  identifier)[0].serialize();
+    LineId.unserialize(nextLineIdentifier), 1, 10, this.user.id)[0].serialize();
 
   // insert the added character
-  edit.insertBefore(span, next);
+  this.editor.insertBefore(span, next);
 
   // move the caret to the end of the inserted character
   range.selectNode(span);
@@ -185,30 +175,38 @@ function insertion(event) {
   selection.addRange(range);
 
   // notify other clients
-  var message = {"type": TYPE_INSERTION, "repID": identifier, "keyCode": event.keyCode, "lineIdentifier": span.id}
-  send(message);
+  var message = JSON.stringify({
+    type  : 'patch',
+    patch : {
+      type            : TYPE_INSERTION,
+      repID           : this.user.id,
+      keyCode         : event.keyCode,
+      lineIdentifier  : span.id
+    }
+  });
+
+  this.websocket.send(message);
   
   // cancel the event, then the character is not added twice
   event.returnValue = false;
 }
 
-function paste(event) {
+LogootEditor.prototype.paste = function(event) {
   alert("Paste not supported.");
   event.returnValue = false;
 }
 
-function deletion(event) {
+LogootEditor.prototype.deletion = function(event) {
   switch(event.keyCode) {
     // <-
     case 8:
-      var edit = document.getElementById(EDITABLE_ID);
       var selection = window.getSelection();
       var range = document.createRange();
       var span = selection.anchorNode.parentNode;
 
       // notify other clients
-	  var message = {"type": TYPE_DELETION, "repID": identifier, "lineIdentifier": span.id}
-	  send(message);
+      var message = {"type": TYPE_DELETION, "repID": this.user.id, "lineIdentifier": span.id}
+      send(message);
 
       if(span.id && span.className != LIMIT_CLASS) {
         // move the caret to the end of the previous character
@@ -218,7 +216,7 @@ function deletion(event) {
         selection.addRange(range);
 
         // delete the character
-        edit.removeChild(span);
+        this.editor.removeChild(span);
       }
 
       // cancel the event, then the character is not added twice
@@ -227,7 +225,6 @@ function deletion(event) {
 
     // del
     case 46:
-      var edit = document.getElementById(EDITABLE_ID);
       var selection = window.getSelection();
       var span = selection.anchorNode.parentNode;
       var next = span.nextSibling;
@@ -239,12 +236,12 @@ function deletion(event) {
       }
 
       // notify other clients
-	  var message = {"type": TYPE_DELETION, "repID": identifier, "lineIdentifier": next.id}
+	  var message = {"type": TYPE_DELETION, "repID": this.user.id, "lineIdentifier": next.id}
 	  send(message);
 
       // delete the character
       if(next && next.className != LIMIT_CLASS) {
-        edit.removeChild(next);
+        this.editor.removeChild(next);
       }
 
       // cancel the event, then the character is not added twice
@@ -257,12 +254,11 @@ function deletion(event) {
 // utilities
 //==============================================================================
 
-function foreignInsertion(repID, keyCode, newLineIdentifier,
-                          previousLineIdentifier) {
+LogootEditor.prototype.foreignInsertion = function(repID, keyCode,
+    newLineIdentifier, previousLineIdentifier) {
   // do not process its own insertions
-  if(repID != identifier
+  if(repID != this.user.id
      && document.getElementById(newLineIdentifier) == undefined) {
-    var edit = document.getElementById(EDITABLE_ID);
     var selection = window.getSelection();
     var next = document.getElementById(previousLineIdentifier).nextSibling;
     var span = document.createElement("span");
@@ -281,26 +277,25 @@ function foreignInsertion(repID, keyCode, newLineIdentifier,
     
     
     // insert the added character
-    edit.insertBefore(span, next);
+    this.editor.insertBefore(span, next);
   }
 }
 
-function foreignDeletion(repID, lineIdentifier) {
+LogootEditor.prototype.foreignDeletion = function(repID, lineIdentifier) {
   // do not process its own insertions
-  if(repID != identifier
+  if(repID != this.user.id
      && document.getElementById(lineIdentifier) != undefined) {
-    var edit = document.getElementById(EDITABLE_ID);
     var span = document.getElementById(lineIdentifier);
 
     // delete the character
-    edit.removeChild(span);
+    this.editor.removeChild(span);
   }
 }
 
-function addCaretForRepID(repID, previousLineIdentifier) {
+LogootEditor.prototype.raddCaretForRepID = function(repID,
+    previousLineIdentifier) {
   // do not (re)display its own caret
-  if(repID != identifier) {
-    var edit = document.getElementById(EDITABLE_ID);
+  if(repID != this.user.id) {
     var next = document.getElementById(previousLineIdentifier).nextSibling;
     var span = document.createElement("span");
 
@@ -316,19 +311,18 @@ function addCaretForRepID(repID, previousLineIdentifier) {
                      + "\">|</font>";
 
     // insert the caret
-    edit.insertBefore(span, next);
+    this.editor.insertBefore(span, next);
   }
 }
 
-function removeCaretForRepID(repID) {
+LogootEditor.prototype.removeCaretForRepID = function(repID) {
   // do not (re)display its own caret
-  if(repID != identifier) {
-    var edit = document.getElementById(EDITABLE_ID);
+  if(repID != this.user.id) {
     var carets = document.getElementsByClassName(CARET_CLASS);
 
     for(var i = 0; i < carets.length; ++i) {
       if(carets[i].id = repID) {
-        edit.removeChild(carets[i]);
+        this.editor.removeChild(carets[i]);
       }
     }
   }
@@ -362,9 +356,8 @@ function caretColorForRepID(repID) {
   return color[notMe[repID]];
 }
 
-function closestSpan(newLineIdentifier) {
-  var edit = document.getElementById(EDITABLE_ID);
-  var span = edit.firstChild.nextSibling;
+LogootEditor.prototype.closestSpan = function(newLineIdentifier) {
+  var span = this.editor.firstChild.nextSibling;
   var spanLineID = LineId.unserialize(span.id);
   var newLineID = LineId.unserialize(newLineIdentifier);
   var compareTo = newLineID.compareTo(spanLineID);
@@ -378,19 +371,3 @@ function closestSpan(newLineIdentifier) {
   return span.previousSibling;
 }
 
-function send(message)
-{
-	var http;
-	if (window.XMLHttpRequest)
-	{ // Mozilla, Safari, IE7 ...
-		http = new XMLHttpRequest();
-	}
-	else if (window.ActiveXObject)
-	{ // Internet Explorer 6
-		http = new ActiveXObject("Microsoft.XMLHTTP");
-	}
-
-	http.open('GET', SEND_URL + '&message=' + JSON.stringify(message), true);
-	//http.onreadystatechange = handleAJAXReturn;
-	http.send(null);
-}
