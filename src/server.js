@@ -4,8 +4,11 @@ var http = require('http');
 var url = require('url');
 var fs = require('fs');
 
-//! Currently connected connections.
+//! Currently connected websocket connections.
 var connections = [];
+
+//! Currently connected users.
+var users = [];
 
 //! Context is all transmited message from server start.
 var context = [];
@@ -181,8 +184,7 @@ function onWsRequest(req) {
   var connection = req.accept(null, req.origin);
   var index = connections.push(connection) - 1;
 
-  var userId = false;
-  var userName = false;
+  var user = false;
 
   // Each user send a message event, message is broadcasted to all users.
   connection.on('message', function(message) {
@@ -191,10 +193,10 @@ function onWsRequest(req) {
 
       switch (obj.type) {
       case 'register':
-        userId = UUID.gen();
-        userName = obj.name;
-        sendConnectSuccessful(connection, userId, userName);
-        sendNewUserConnected(userId, userName, connection);
+        user = { id: UUID.gen(), name: obj.name };
+        users.push(user);
+        sendConnectSuccessful(connection, user);
+        sendNewUserConnected(user, connection);
         break;
       case 'patch':
         sendPatch(obj.patch, connection);
