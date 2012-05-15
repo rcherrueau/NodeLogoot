@@ -4,14 +4,22 @@ var http = require('http');
 var url = require('url');
 var fs = require('fs');
 
-//! Currently connected websocket connections.
-var connections = [];
-
-//! Currently connected users.
+/*!
+ * \brief Currently connected users.
+ *
+ * Each user has the followinf form:
+ \verbatim
+  {
+    id          : <USER UNIQUE ID>,
+    name        : <USER NAME>,
+    connection  : <WEBSOCKET CONNECTION OBJECT>
+  }
+ \endverbatim
+ */
 var users = [];
 
-//! Context is all transmited message from server start.
-var context = [];
+//! Context is all transmited patchs from server start.
+var patchs = [];
 
 //! Unique identifier of user.
 function UUID() { }
@@ -30,6 +38,28 @@ UUID.gen = function() {
   return (millis * Math.pow(2, 12)) + UUID.counter;
 }
 
+function sendContext(user) {
+  // Send existing patch.
+  for (var i in patchs) {
+    var msg = JSON.stringify({ type: 'patch', patch: patchs[i] });
+
+    user.connection.sendUTF(msg);
+  }
+
+  // Send connected user.
+  for (var i in users) {
+    if (users[i] != user) {
+      var msg = JSON.stringify({
+        type  : 'userConnected',
+        id    : users[i].id,
+        name  : users[i].name
+      });
+
+      user.connection.sendUTF(msg);
+    }
+  }
+}
+
 /*!
  * \brief Specifie user is successfully connected.
  *
@@ -44,18 +74,16 @@ UUID.gen = function() {
   }
  \endverbatim
  *
- * \param connection  The websocket user connection (to send message).
- * \param userId      The user id.
- * \param userName    The new user name.
+ * \param user  The new user successfuly connected object.
  */
-function sendConnectSuccessful(connection, userId, userName) {
+function sendConnectSuccessful(user) {
   var msg = JSON.stringify({
     type  : 'connected',
-    id    : userId,
-    name  : userName
+    id    : user.id,
+    name  : user.name
   });
 
-  connection.sendUTF(msg);
+  user.connection.sendUTF(msg);
 }
 
 /*!
@@ -71,21 +99,21 @@ function sendConnectSuccessful(connection, userId, userName) {
     name  : <USER NAME>
  }
  \endverbatim
+ * 
+ * The new user connected notification is not send to new user.
  *
- * \param userId      The new user id.
- * \param userName    The new user name.
- * \param except      The connection to not send.
+ * \param user    The new user connected object.
  */
-function sendNewUserConnected(userId, userName, except) {
+function sendNewUserConnected(user) {
   var msg = JSON.stringify({
     type  : 'userConnected',
-    id    : userId,
-    name  : userName
+    id    : user.id,
+    name  : user.name
   });
 
-  for (var i in connections) {
-    if (connections[i] != except) {
-      connections[i].sendUTF(msg);
+  for (var i in users) {
+    if (users[i].connection != user.connection) {
+      users[i].connection.sendUTF(msg);
     }
   }
 }
@@ -103,12 +131,16 @@ function sendNewUserConnected(userId, userName, except) {
  }
  \endverbatim
  *
- * \param userId      The disconnect user id.
+ * \param user      The disconnect user object.
  */
-function sendUserDisconnected(userId) {
-  var msg = JSON.stringify({ type: 'userDisconnected', id: userId });
+function sendUserDisconnected(user) {
+  var msg = JSON.stringify({ type: 'userDisconnected', id: user.id });
 
-  for (var i in connections) { connections[i].sendUTF(msg); }
+  for (var i in users) {
+    if (users[i].connection != user.connection) {
+      users[i].connection.sendUTF(msg);
+    }
+  }
 }
 
 /*!
@@ -130,9 +162,8 @@ function sendPatch(patch, except) {
   var msg = JSON.stringify({ type: 'patch', patch: patch });
 
   for (var i in connections) { 
-    if (connections[i] != except) {
-      console.log("send to: " + connections[i]);
-      connections[i].sendUTF(msg);
+    if (users[i].connection != except) {
+      users[i].connection.sendUTF(msg);
     }
   }
 }
@@ -176,15 +207,24 @@ function onHttpRequest(req, res) {
 /*!
  * \brief WebSocket Request Listener.
  *
- * Listen on a new user connect to WebSocket Server.
+ * Listen on a new user connect to WebSocket Server. A new user is store in
+ * users after user identification. Each user is an object with following
+ * format :
+ \verbatim
+  {
+    id          : <USER UNIQUE ID>,
+    name        : <USER NAME>,
+    connection  : <WEBSOCKET CONNECTION OBJECT>
+  }
+ \endverbatim
  *
  * \param req   The user request.
  */
 function onWsRequest(req) {
   var connection = req.accept(null, req.origin);
-  var index = connections.push(connection) - 1;
 
   var user = false;
+  var index = false;
 
   // Each user send a message event, message is broadcasted to all users.
   connection.on('message', function(message) {
@@ -193,13 +233,15 @@ function onWsRequest(req) {
 
       switch (obj.type) {
       case 'register':
-        user = { id: UUID.gen(), name: obj.name };
-        users.push(user);
-        sendConnectSuccessful(connection, user);
-        sendNewUserConnected(user, connection);
+        user = { id: UUID.gen(), name: obj.name, connection: connection };
+        index = users.push(user) - 1;
+        sendConnectSuccessful(user);
+        sendContext(user);
+        sendNewUserConnected(user);
         break;
       case 'patch':
         sendPatch(obj.patch, connection);
+        patchs.push(obj.patch);
         break;
       default: // Do Nothing
       }
@@ -208,8 +250,10 @@ function onWsRequest(req) {
 
   // At user disconection, he is remove from broadcast groupe.
   connection.on('close', function(connection) {
-    connections.splice(index, 1); 
-    sendUserDisconnected(userId);
+    if (index !== false) {
+      users.splice(index, 1); 
+      sendUserDisconnected(user);
+    }
   });
 }
 
