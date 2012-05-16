@@ -161,7 +161,7 @@ function sendUserDisconnected(user) {
 function sendPatch(patch, except) {
   var msg = JSON.stringify({ type: 'patch', patch: patch });
 
-  for (var i in connections) { 
+  for (var i in users) { 
     if (users[i].connection != except) {
       users[i].connection.sendUTF(msg);
     }

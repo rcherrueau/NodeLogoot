@@ -97,11 +97,13 @@ if (!BASE) {
 // ! Number of digit in BASE.
 var DIGIT = Number(BASE.toString().length - 1);
 
-/*
- * ! \class Triplet \brief Triplet meta data.
+/*!
+ * \class Triplet
+ * \brief Triplet meta data.
  * 
- * \param a First element of triplet tuple. \param b Second element of triplet
- * tuple. \param c Third element of triplet tuple.
+ * \param a First element of triplet tuple.
+ * \param b Second element of triplet tuple.
+ * \param c Third element of triplet tuple.
  */
 function Triplet(a, b, c) {
 
@@ -115,13 +117,13 @@ function Triplet(a, b, c) {
 	this.third = c;
 }
 
-/*
- * ! \brief Returns element at specific place.
+/*!
+ * \brief Returns element at specific place.
  * 
  * Returns element at specific place. Index would be in range [0..2].
  * 
- * \param i The index place. \return The element at place \c i or \c null if \c
- * i not in range [0..2].
+ * \param i The index place.
+ * \return The element at place \c i or \c null if \c i not in range [0..2].
  */
 Triplet.prototype.get = function(i) {
 	var value;
@@ -143,11 +145,13 @@ Triplet.prototype.get = function(i) {
 	return value;
 }
 
-/*
- * ! \class Position \extends Triplet
+/*!
+ * \class Position
+ * \extends Triplet
  * 
- * \param int_ Integer in range of <tt>[0..BASE[</tt>. \param replica Unique
- * replica identifier. \param clock \c s timestamps (default 0).
+ * \param int_ Integer in range of <tt>[0..BASE[</tt>.
+ * \param replica Unique replica identifier.
+ * \param clock \c s timestamps (default 0).
  */
 function Position(int_, replica, clock) {
 	if (!clock) {
@@ -159,8 +163,8 @@ function Position(int_, replica, clock) {
 Position.prototype = new Triplet;
 Position.prototype.constructor = Position;
 
-/*
- * ! \brief Returns the Integer in range of <tt>[0..BASE[</tt>.
+/*!
+ * \brief Returns the Integer in range of <tt>[0..BASE[</tt>.
  * 
  * \return The integer in range of <tt>[0..BASE[</tt>.
  */
@@ -168,8 +172,8 @@ Position.prototype.getInt = function() {
 	return this.first;
 }
 
-/*
- * ! \brief Returns replica identifying the user.
+/*!
+ * \brief Returns replica identifying the user.
  * 
  * \return The unique identifier.
  */
@@ -177,8 +181,8 @@ Position.prototype.getReplica = function() {
 	return this.second;
 }
 
-/*
- * ! \brief Returns the current value of the clock.
+/*!
+ * \brief Returns the current value of the clock.
  * 
  * \return The value of clock.
  */
@@ -186,11 +190,11 @@ Position.prototype.getClock = function() {
 	return this.third;
 }
 
-/*
- * ! \brief Compare current position with another.
+/*!
+ * \brief Compare current position with another.
  * 
- * \param position Position to compare with current. \return Result of
- * comparison. Values is one of (-1, 0, 1).
+ * \param position Position to compare with current.
+ * \return Result of comparison. Values is one of (-1, 0, 1).
  */
 Position.prototype.compareTo = function(position) {
 	if (this.getInt() > position.getInt()) {
@@ -224,8 +228,8 @@ Position.prototype.compareToFake = function(position) {
 	}
 }
 
-/*
- * ! \brief Returns a string representation of the object.
+/*!
+ * \brief Returns a string representation of the object.
  * 
  * \return A string representation of the object.
  */
@@ -234,8 +238,8 @@ Position.prototype.toString = function() {
 			+ this.getClock() + ")";
 }
 
-/*
- * ! \brief Returns minimum position value possible.
+/*!
+ * \brief Returns minimum position value possible.
  * 
  * \return New Position that is minimum value accepted.
  */
@@ -243,8 +247,8 @@ Position.getMin = function() {
 	return new Position(1, 0, 0);
 }
 
-/*
- * ! \brief Returns maximum position value possible.
+/*!
+ * \brief Returns maximum position value possible.
  * 
  * \return New Position that is maximum value accepted (aka \c BASE - 1).
  */
@@ -252,8 +256,9 @@ Position.getMax = function() {
 	return new Position(BASE - 1, 0, 0);
 }
 
-/*
- * ! \class LineId \brief Line identifier.
+/*!
+ * \class LineId
+ * \brief Line identifier.
  * 
  * LineId is a no mutable ordered Position list. The last Position of the list
  * is the last position of line and position used to create line. Moreover, each
@@ -264,8 +269,8 @@ function LineId() {
 	this.positions = [];
 }
 
-/*
- * ! \brief Adds new position to current Line Identifier.
+/*!
+ * \brief Adds new position to current Line Identifier.
  * 
  * \param position The position to add (needs have same \c BASE as others).
  */
@@ -273,11 +278,11 @@ LineId.prototype.add = function(position) {
 	this.positions.push(position);
 }
 
-/*
- * ! \brief Returns position at specified index.
+/*!
+ * \brief Returns position at specified index.
  * 
- * \param i Index of position to return. \return The position object at the
- * specified index (or undefined).
+ * \param i Index of position to return.
+ * \return The position object at the specified index (or undefined).
  */
 LineId.prototype.getPosition = function(i) {
 	return this.positions[i];
@@ -292,11 +297,11 @@ LineId.prototype.length = function() {
 	return this.positions.length;
 }
 
-/*
+/*!
  * \brief Compare a LineId with the current.
  * 
- * \param lineId The LineId to compare with current. \return Result of
- * comparison. Values is one of (-1, 0, 1).
+ * \param lineId The LineId to compare with current.
+ * \return Result of comparison. Values is one of (-1, 0, 1).
  */
 LineId.prototype.compareTo = function(lineId) {
 	if (this.length() > 0 && lineId.length() > 0) {
@@ -329,8 +334,8 @@ LineId.prototype.toString = function() {
 	return str;
 }
 
-/*
- * ! \brief Returns a JSON representation of the object.
+/*!
+ * \brief Returns a JSON representation of the object.
  * 
  * \return A JSON from object datas.
  */
@@ -338,10 +343,11 @@ LineId.prototype.serialize = function() {
 	return JSON.stringify(this);
 }
 
-/*
- * ! \brief Unserialize a JSON LineId.
+/*!
+ * \brief Unserialize a JSON LineId.
  * 
- * \param json JSON datas of LineId. \return A new LineId from JSON datas.
+ * \param json JSON datas of LineId.
+ * \return A new LineId from JSON datas.
  */
 LineId.unserialize = function(json) {
 	var data = JSON.parse(json);
@@ -358,8 +364,8 @@ LineId.unserialize = function(json) {
 	return lineId;
 }
 
-/*
- * ! \brief Returns new Line Identifier with min position only.
+/*!
+ * \brief Returns new Line Identifier with min position only.
  * 
  * The Line Identifier with min position represente the starter of document.
  * 
@@ -372,8 +378,8 @@ LineId.getDocumentStarter = function() {
 	return lineId;
 }
 
-/*
- * ! \brief Returns new Line Identifier with max position only.
+/*!
+ * \brief Returns new Line Identifier with max position only.
  * 
  * The Line Identifier with max position represente the end of document.
  * 
