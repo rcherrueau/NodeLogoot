@@ -1,15 +1,15 @@
-\section{Objectifs}
+\section{Objectif}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Scénario
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Objectifs}
+\begin{frame}{Un exemple (fictif mais réaliste !)}
   \begin{block}{Scénario}
-  On est samedi et l'étudiant Ronan demande de l'aide à l'un de ses professeurs
-  pour corriger le PowerPoint qu'il va présenter à la soutenance Boost Your
-  Code.\\
+  On est jeudi soir et l'étudiant Ronan demande de l'aide à l'un de ses
+  professeurs pour corriger son support de présentation pour la soutenance
+  \emph{Boost Your Code}.\\
   ~\\
-  \emph{Comment Ronan doit il faire pour rendre le PowerPoint accessible à son
+  \emph{Comment Ronan doit il faire pour rendre le support accessible à son
   professeur et ainsi permettre la collaboration ?}
   \end{block}
 \end{frame}
@@ -20,18 +20,17 @@
 \begin{frame}{Subversion}
 \begin{columns}
   \begin{column}{.5\textwidth}
-  Subervsion :
+  Subversion :
   \begin{itemize}
-    \item Logiciel de gestion de versions
+    \item Logiciel de gestion de versions ;
     \item Stocke un ensemble de fichiers en conservant la chronologie des
-    modifications
-    \item Fait pour \textbf{le travail en équipe}
+    modifications ;
   \end{itemize}~
 
   Pour notre scénario :
   \begin{itemize}
-    \item Le PowerPoint est sur un serveur (centralisé)
-    \item Les modifications se font en deux temps (différé)
+    \item Le support de présentation est sur un serveur (\textbf{centralisé}) ;
+    \item Les modifications se font en deux temps (\textbf{différé}).
   \end{itemize}
   \end{column}
 
@@ -50,14 +49,15 @@
   \begin{column}{.55\textwidth}
   Git :
   \begin{itemize}
-    \item Logiciel de gestion de versions
-    \item Système \textbf{décentralisé} 
+    \item Logiciel de gestion de versions ;
+    \item Système décentralisé.
   \end{itemize}~
 
   Pour notre scénario :
   \begin{itemize}
-    \item Chaque collaborateur à une copie du PowerPoint (distribué)
-    \item Les modifications se font en deux temps (différé)
+    \item Chaque collaborateur à une copie du support de présentation
+    (\textbf{distribué}) ;
+    \item Les modifications se font en deux temps (\textbf{différé}).
   \end{itemize}
   \end{column}
 
@@ -76,14 +76,14 @@
   \begin{column}{.5\textwidth}
   Google Docs :
   \begin{itemize}
-    \item Plateforme pour le travail en ligne collaboratif
-    \item Permet l'édition de document Word, Excel et PowerPoint
+    \item Plateforme pour le travail collaboratif en ligne ;
+    \item Permet l'édition de document Word, Excel et PowerPoint.
   \end{itemize}~
 
   Pour notre scénario :
   \begin{itemize}
-    \item Le PowerPoint est sur un serveur (centralisé)
-    \item Les modifications se font en instantanées (temps réel)
+    \item Le support de présentation est sur un serveur (\textbf{centralisé}) ;
+    \item Les modifications se font en instantané (\textbf{temps réel}).
   \end{itemize}
   \end{column}
 
@@ -97,34 +97,52 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}{Objectifs}
+\begin{frame}{Objectif}
   \begin{figure}
     \center
     \includegraphics[width=.7\textwidth]{includes/tab1.pdf}
   \end{figure}
 \end{frame}
 
-\begin{frame}{Objectifs}
+\begin{frame}{Objectif}
   \begin{figure}
     \center
     \includegraphics[width=.7\textwidth]{includes/tab2.pdf}
   \end{figure}
 \end{frame}
 
-\begin{frame}{Objectifs}
-Un noyau ?
+\begin{frame}{Solution : \emph{CEK-P2P}}
+  \begin{figure}
+    \center
+    \includegraphics[width=.5\textwidth]{includes/cekp2p.pdf}
+    \caption{Solution \emph{CEK-P2P}}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Solution : \emph{CEK-P2P}}
+  \begin{figure}
+    \center
+    \includegraphics[width=.5\textwidth]{includes/cekp2p3perso.pdf}
+    \caption{Solution \emph{CEK-P2P}}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Le noyau : spécification}
 \begin{itemize}
-  \item Éditer plusieurs formats de documents : PowerPoint, Code, Doodle \ldots 
+  \item Éditer plusieurs formats de documents : PowerPoint, Code Java, Sondage
+  Doodle, Latex, \ldots 
     \begin{itemize}
-    \item[$\Rightarrow$] Noyau avec un Méta-modèle de document
+    \item[$\Rightarrow$] Méta-modèle de documents pour définir leur structure
+    et leur édition
     \end{itemize}
-  \item Profiter du réseau Pair à Pair
+  \item Particper au réseau Pair à Pair
     \begin{itemize}
-    \item[$\Rightarrow$] Noyau avec un mécanisme d'envoi de message
+    \item[$\Rightarrow$] Envoi de messages
     \end{itemize}
   \item Envelopper des éditeurs existants
     \begin{itemize}
-    \item[$\Rightarrow$] Noyau facile à intégrer, étendre
+    \item[$\Rightarrow$] Architecture Modèle (Document) -- Vue (Éditeur) --
+    Présentation (Intéraction)
     \end{itemize}
 \end{itemize}
 \end{frame}

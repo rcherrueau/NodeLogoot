@@ -1,41 +1,38 @@
-\section{R\'ealisation}
-\begin{frame}{Réalisation}
+\section{Conception du projet}
+\begin{frame}{Les deux technologies}
 \begin{description}
-\item [Logoot] ~ 
-  \begin{itemize}
-    \item Algorithme d'édition collaborative de documents dans un réseau
+\item [Logoot] : Algorithme d'édition collaborative de documents dans un réseau
     pair à pair
-    \item Développé par l'équipe GDD (LINA) ces dernières années
-    \item Utilisé par le noyau pour faire l'édition collaborative
-  \end{itemize}
-\item [Criojo] ~
   \begin{itemize}
-    \item Langage de programmation chimique répartie
-    \item En cours de développement par l'équipe ASCOLA (inria)
-    \item Utilisé pour la distribution des modifications et la définitions
-    des structures de documents
+    \item Développé par l'équipe GDD (Inria, LINA) ces dernières années ;
+    \item Utilisé par le noyau pour faire l'édition collaborative.
+  \end{itemize} ~
+\item [Criojo] : Langage de programmation \emph{chimique répartie}
+  \begin{itemize}
+    \item En cours de développement par l'équipe ASCOLA (Inria, LINA) ;
+    \item Utilisé pour la distribution des modifications et la définition
+    des documents.
   \end{itemize}
 \end{description}
 \end{frame}
 
 \begin{frame}{Logoot}
-TODO: exemple
+\begin{itemize}
+  \item Gère les conflits d'édition dans un document distribué ;
+  \item Génère des identifiants pour le partage des modifications entre les
+  collaborateurs d'un document ;
+  \item Analyse les identifiants reçus pour positionner les modifications dans
+  le document.
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Criojo}
-Langage de programmation chimique répartie ?
+Langage de programmation \emph{chimique répartie}
 \begin{itemize}
-  \item Définis des agents répartis qui consomment et produisent des messages
-  sur le réseau
-    \begin{itemize}
-    \item [$\Rightarrow$] Au niveau du noyau, chaque éditeur d'un même document
-    est représenté par un agent chimique.
-    \end{itemize}
-  \item Représente l'état d'un agent comme une structure logique formée d'atomes
-    \begin{itemize}
-    \item [$\Rightarrow$] Au niveau du noyau, ce formalisme est particulièrement
-    adapté à la représentation de documents
-    \end{itemize}
+  \item Définit des agents répartis qui consomment et produisent des messages
+  sur le réseau ;
+  \item Représente l'état d'un agent comme une structure logique formée
+  d'atomes.
 \end{itemize}
 \end{frame}
 
@@ -43,8 +40,23 @@ Langage de programmation chimique répartie ?
 TODO: exemple
 \end{frame}
 
-\begin{frame}{Réalisation}
-TODO: exemple
+\begin{frame}{État des lieux}
+TODO: état
 \end{frame}
 
+\begin{frame}{Ambition du projet}
+\begin{itemize}
+  \item Composer deux technologies provenant du monde de la Recherche
+  \item \textbf{Pourquoi ?} Pour produire un programme ayant une utilité claire.
+  Par exemple, 
+  % Dire ici, par exemple à la fin du projet, faire du java dans eclipse de 
+  % manière collaborative.
+  \item \textbf{Comment ?} En utilisant les méthodes agiles (Scrum)
+    \begin{itemize}
+    \item Définir des cycles très courts de développement
+    \item Fixer des réunions en fin de cycle avec un encadrant GDD, ASCOLA ou
+    AtlanMod
+    \end{itemize}
+\end{itemize}
+\end{frame}
 
