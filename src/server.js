@@ -7,7 +7,7 @@ var fs = require('fs');
 /*!
  * \brief Currently connected users.
  *
- * Each user has the followinf form:
+ * Each user has the following form:
  \verbatim
   {
     id          : <USER UNIQUE ID>,
