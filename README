@@ -9,10 +9,8 @@ still exist in Logoot LineId placement (Work on it).
 
 == Run ==
 1. Install Node.js from http://nodejs.org/
-2. Install websocket support for Node.js: npm install websocket
+2. In src/, install websocket support for Node.js: npm install websocket
 3. Run Server: node server.js
 4. Launch http://localhost:1337
 5. Connect client, See console.log, Enjoy :)
-
-Ronan-Alexandre Cherrueau ronancherrueau{at}gmail{dot}com
 
