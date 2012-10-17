@@ -305,14 +305,20 @@ LineId.prototype.length = function() {
  */
 LineId.prototype.compareTo = function(lineId) {
 	if (this.length() > 0 && lineId.length() > 0) {
-		for ( var i = 0; i < Math.min(this.length(), lineId.length()) -1; ++i) {
+		for ( var i = 0; i < Math.min(this.length(), lineId.length()); ++i) {
 			var comparison = this.getPosition(i).compareToFake(lineId.getPosition(i));
 			if (comparison != 0) {
 				return comparison;
 			}
 		}
-		return this.getPosition(Math.min(this.length(), lineId.length())-1).
-      compareTo(lineId.getPosition(Math.min(this.length(), lineId.length())-1));
+
+    if (this.length() > lineId.length()) {
+      return 1;
+      } else if (this.length() < lineId.length()) {
+      return -1;
+      }
+
+		return this.getPosition(Math.min(this.length(), lineId.length())-1).compareTo(lineId.getPosition(Math.min(this.length(), lineId.length())));
 	}
 	return 0;
 }
