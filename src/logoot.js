@@ -318,7 +318,7 @@ LineId.prototype.compareTo = function(lineId) {
       return -1;
       }
 
-		return this.getPosition(Math.min(this.length(), lineId.length())-1).compareTo(lineId.getPosition(Math.min(this.length(), lineId.length())));
+		return this.getPosition(Math.min(this.length(), lineId.length())-1).compareTo(lineId.getPosition(Math.min(this.length(), lineId.length())-1));
 	}
 	return 0;
 }
