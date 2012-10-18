@@ -90,8 +90,8 @@ function rand(min, max) {
 // ************************************************************** Logoot Datas *
 //! BASE constant for position object (if not existe, BASE is set to MAX_INT).
 if (!BASE) {
-	var MAX_INT = Math.pow(2, 32);
-	var BASE = MAX_INT;
+  var MAX_INT = Math.pow(2, 32);
+  var BASE = MAX_INT;
 }
 
 // ! Number of digit in BASE.
@@ -107,14 +107,14 @@ var DIGIT = Number(BASE.toString().length - 1);
  */
 function Triplet(a, b, c) {
 
-	// ! The first tuple element.
-	this.first = a;
+  // ! The first tuple element.
+  this.first = a;
 
-	// ! The second tuple element.
-	this.second = b;
+  // ! The second tuple element.
+  this.second = b;
 
-	// ! The third tuple element.
-	this.third = c;
+  // ! The third tuple element.
+  this.third = c;
 }
 
 /*!
@@ -126,23 +126,23 @@ function Triplet(a, b, c) {
  * \return The element at place \c i or \c null if \c i not in range [0..2].
  */
 Triplet.prototype.get = function(i) {
-	var value;
+  var value;
 
-	switch (i) {
-	case 0:
-		value = this.first;
-		break;
-	case 1:
-		value = this.second;
-		break;
-	case 2:
-		value = this.third;
-		break;
-	default:
-		value = null;
-	}
+  switch (i) {
+  case 0:
+    value = this.first;
+    break;
+  case 1:
+    value = this.second;
+    break;
+  case 2:
+    value = this.third;
+    break;
+  default:
+    value = null;
+  }
 
-	return value;
+  return value;
 }
 
 /*!
@@ -154,11 +154,11 @@ Triplet.prototype.get = function(i) {
  * \param clock \c s timestamps (default 0).
  */
 function Position(int_, replica, clock) {
-	if (!clock) {
-		var clock = 0;
-	}
+  if (!clock) {
+    var clock = 0;
+  }
 
-	Triplet.call(this, int_, replica, clock);
+  Triplet.call(this, int_, replica, clock);
 }
 Position.prototype = new Triplet;
 Position.prototype.constructor = Position;
@@ -169,7 +169,7 @@ Position.prototype.constructor = Position;
  * \return The integer in range of <tt>[0..BASE[</tt>.
  */
 Position.prototype.getInt = function() {
-	return this.first;
+  return this.first;
 }
 
 /*!
@@ -178,7 +178,7 @@ Position.prototype.getInt = function() {
  * \return The unique identifier.
  */
 Position.prototype.getReplica = function() {
-	return this.second;
+  return this.second;
 }
 
 /*!
@@ -187,7 +187,7 @@ Position.prototype.getReplica = function() {
  * \return The value of clock.
  */
 Position.prototype.getClock = function() {
-	return this.third;
+  return this.third;
 }
 
 /*!
@@ -197,35 +197,41 @@ Position.prototype.getClock = function() {
  * \return Result of comparison. Values is one of (-1, 0, 1).
  */
 Position.prototype.compareTo = function(position) {
-	if (this.getInt() > position.getInt()) {
-		return 1;
-	} else if (this.getInt() < position.getInt()) {
-		return -1;
-	}
+  if (this.getInt() > position.getInt()) {
+    return 1;
+  } else if (this.getInt() < position.getInt()) {
+    return -1;
+  }
 
-	if (this.getReplica > position.getReplica()) {
-		return 1;
-	} else if (this.getReplica < position.getReplica()) {
-		return -1;
-	}
+  if (this.getReplica > position.getReplica()) {
+    return 1;
+  } else if (this.getReplica < position.getReplica()) {
+    return -1;
+  }
 
-	if (this.getClock > position.getClock()) {
-		return 1;
-	} else if (this.getClock < position.getClock()) {
-		return -1;
-	}
+  if (this.getClock > position.getClock()) {
+    return 1;
+  } else if (this.getClock < position.getClock()) {
+    return -1;
+  }
 
-	return 0;
+  return 0;
 }
 
-Position.prototype.compareToFake = function(position) {
-	if (this.getInt() > position.getInt()) {
-		return 1;
-	} else if (this.getInt() < position.getInt()) {
-		return -1;
-	} else {
-		return 0;
-	}
+/*!
+ * \brief Compare current position with another on int_ attribut.
+ *
+ * \param position Position to compare with current.
+ * \return Result of comparison. Values is one of (-1, 0, 1).
+ */
+Position.prototype.compareOnInt = function(position) {
+  if (this.getInt() > position.getInt()) {
+    return 1;
+  } else if (this.getInt() < position.getInt()) {
+    return -1;
+  } else {
+    return 0;
+  }
 }
 
 /*!
@@ -234,8 +240,8 @@ Position.prototype.compareToFake = function(position) {
  * \return A string representation of the object.
  */
 Position.prototype.toString = function() {
-	return "(" + this.getInt() + ":" + this.getReplica() + ":"
-			+ this.getClock() + ")";
+  return "(" + this.getInt() + ":" + this.getReplica() + ":"
+      + this.getClock() + ")";
 }
 
 /*!
@@ -244,7 +250,7 @@ Position.prototype.toString = function() {
  * \return New Position that is minimum value accepted.
  */
 Position.getMin = function() {
-	return new Position(1, 0, 0);
+  return new Position(1, 0, 0);
 }
 
 /*!
@@ -253,7 +259,7 @@ Position.getMin = function() {
  * \return New Position that is maximum value accepted (aka \c BASE - 1).
  */
 Position.getMax = function() {
-	return new Position(BASE - 1, 0, 0);
+  return new Position(BASE - 1, 0, 0);
 }
 
 /*!
@@ -265,8 +271,8 @@ Position.getMax = function() {
  * position in LineId which have same \c BASE.
  */
 function LineId() {
-	// ! Positions container.
-	this.positions = [];
+  // ! Positions container.
+  this.positions = [];
 }
 
 /*!
@@ -275,7 +281,7 @@ function LineId() {
  * \param position The position to add (needs have same \c BASE as others).
  */
 LineId.prototype.add = function(position) {
-	this.positions.push(position);
+  this.positions.push(position);
 }
 
 /*!
@@ -285,7 +291,7 @@ LineId.prototype.add = function(position) {
  * \return The position object at the specified index (or undefined).
  */
 LineId.prototype.getPosition = function(i) {
-	return this.positions[i];
+  return this.positions[i];
 }
 
 /*
@@ -294,7 +300,7 @@ LineId.prototype.getPosition = function(i) {
  * \return Number of Position in Line Identifier.
  */
 LineId.prototype.length = function() {
-	return this.positions.length;
+  return this.positions.length;
 }
 
 /*!
@@ -304,23 +310,31 @@ LineId.prototype.length = function() {
  * \return Result of comparison. Values is one of (-1, 0, 1).
  */
 LineId.prototype.compareTo = function(lineId) {
-	if (this.length() > 0 && lineId.length() > 0) {
-		for ( var i = 0; i < Math.min(this.length(), lineId.length()); ++i) {
-			var comparison = this.getPosition(i).compareToFake(lineId.getPosition(i));
-			if (comparison != 0) {
-				return comparison;
-			}
-		}
+  if (this.length() > 0 && lineId.length() > 0) {
 
+    // Campare each position one by one.
+    var minPosition = Math.min(this.length(), lineId.length());
+    for (var i = 0; i < minPosition; ++i) {
+      var comparison = this.getPosition(i).compareOnInt(lineId.getPosition(i));
+      if (comparison != 0) {
+        return comparison;
+      }
+    }
+
+    // If no difference find, the comparison is get from the bigger one.
     if (this.length() > lineId.length()) {
       return 1;
-      } else if (this.length() < lineId.length()) {
+    } else if (this.length() < lineId.length()) {
       return -1;
-      }
+    }
 
-		return this.getPosition(Math.min(this.length(), lineId.length())-1).compareTo(lineId.getPosition(Math.min(this.length(), lineId.length())-1));
-	}
-	return 0;
+    // If LineId are length equal and compareOnInt equals on each position,
+    // compare last position on all attributes.
+    return this.getPosition(Math.min(this.length(), lineId.length())-1).
+      compareTo(lineId.getPosition(Math.min(this.length(), lineId.length())-1));
+  }
+
+  return 0;
 }
 
 /*
@@ -329,15 +343,15 @@ LineId.prototype.compareTo = function(lineId) {
  * \return A string representation of the object.
  */
 LineId.prototype.toString = function() {
-	var str;
+  var str;
 
-	str = "[";
-	for ( var key in this.positions) {
-		str += this.positions[key].toString();
-	}
-	str += "]";
+  str = "[";
+  for ( var key in this.positions) {
+    str += this.positions[key].toString();
+  }
+  str += "]";
 
-	return str;
+  return str;
 }
 
 /*!
@@ -346,7 +360,7 @@ LineId.prototype.toString = function() {
  * \return A JSON from object datas.
  */
 LineId.prototype.serialize = function() {
-	return JSON.stringify(this);
+  return JSON.stringify(this);
 }
 
 /*!
@@ -356,52 +370,49 @@ LineId.prototype.serialize = function() {
  * \return A new LineId from JSON datas.
  */
 LineId.unserialize = function(json) {
-	var data = JSON.parse(json);
-	var lineId = new LineId();
+  var data = JSON.parse(json);
+  var lineId = new LineId();
 
-	for (i in data.positions) {
-		var int_ = data.positions[i].first;
-		var replica = data.positions[i].second;
-		var clock = data.positions[i].third;
+  for (i in data.positions) {
+    var int_ = data.positions[i].first;
+    var replica = data.positions[i].second;
+    var clock = data.positions[i].third;
 
-		lineId.add(new Position(int_, replica, clock));
-	}
+    lineId.add(new Position(int_, replica, clock));
+  }
 
-	return lineId;
+  return lineId;
 }
 
 /*!
  * \brief Returns new Line Identifier with min position only.
  * 
- * The Line Identifier with min position represente the starter of document.
+ * The Line Identifier with min position represent the starter of document.
  * 
  * \return New LineId with Min Position.
  */
 LineId.getDocumentStarter = function() {
-	var lineId = new LineId();
+  var lineId = new LineId();
 
-	lineId.add(Position.getMin());
-	return lineId;
+  lineId.add(Position.getMin());
+  return lineId;
 }
 
 /*!
  * \brief Returns new Line Identifier with max position only.
  * 
- * The Line Identifier with max position represente the end of document.
+ * The Line Identifier with max position represent the end of document.
  * 
  * \return New LineId with Max Position.
  */
 LineId.getDocumentFinisher = function() {
-	var lineId = new LineId();
+  var lineId = new LineId();
 
-	lineId.add(Position.getMax());
-	return lineId;
+  lineId.add(Position.getMax());
+  return lineId;
 }
 
 // ***************************************************** Logoot Implementation *
-//! Boundary for LineId Generator
-Logoot.BOUNDARY = undefined;
-
 /*!
  * \class   Logoot
  * \brief   Logoot algorithm implementation.
@@ -443,7 +454,7 @@ Logoot.generateLineId = function(previousLineId, nextLineId, N,
     interval = prefNext - prefPrev - 1;
   }
 
-  // Construct Indentifier.
+  // Construct Identifier.
   var step = interval/N;
   step = (boundary) ? Math.min(Math.round(step), boundary) : Math.round(step);
   var r = prefPrev;
@@ -483,7 +494,7 @@ Logoot.prefix = function(lineId, index) {
   var result = '';
   var min = Math.min(index, lineId.length());
   
-  // Get each position.getInt and put it in right \c BASE.
+  // Get each position.getInt and put it in right BASE.
   for (var id = 0; id < min; ++ id) {
     result += str_pad(lineId.getPosition(id).getInt().toString(), DIGIT, '0',
         'STR_PAD_LEFT');
@@ -543,6 +554,7 @@ Logoot.constructLineId = function(r, startLineId, endLineId, replica) {
     if(isNaN(position.getInt())) {
       console.error("NaN in apostition.");
     }
+
     lineId.add(position);
   }
 

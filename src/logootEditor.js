@@ -1,3 +1,6 @@
+//! Use BOUNDARY Strategy in Logoot
+BOUNDARY = 10;
+
 /*!
  * LogootEditor start logoot on specified element.
  *
@@ -228,7 +231,7 @@ LogootEditor.prototype.insertion = function(event) {
   span.innerHTML = data;
   span.className = LogootEditor.CHARACTER_CLASS;
   span.id = Logoot.generateLineId(LineId.unserialize(previousLineIdentifier),
-    LineId.unserialize(nextLineIdentifier), 1, undefined,
+    LineId.unserialize(nextLineIdentifier), 1, BOUNDARY,
     this.user.id)[0].serialize();
 
   // insert the added character
